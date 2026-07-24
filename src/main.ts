@@ -17,12 +17,35 @@ const MAX_INPUT_REPORTS = 100;
 
 const app = document.getElementById('app')!;
 
+function getTheme(): 'dark' | 'light' {
+  const saved = localStorage.getItem('hid-explorer-theme');
+  if (saved === 'light' || saved === 'dark') return saved;
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function applyTheme(theme: 'dark' | 'light') {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('hid-explorer-theme', theme);
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    btn.innerHTML = theme === 'dark'
+      ? '<span class="icon">☀️</span> Light'
+      : '<span class="icon">🌙</span> Dark';
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
 function render() {
   app.innerHTML = `
     <div class="toolbar">
       <h1>HID Explorer</h1>
       <button id="connectBtn">Connect</button>
       <select id="deviceSelect"></select>
+      <button id="themeToggleBtn" class="theme-toggle"></button>
     </div>
     <div class="main-content">
       <div class="panel panel-left">
@@ -74,6 +97,8 @@ function bindEvents() {
   document.getElementById('sendFeatureBtn')!.addEventListener('click', sendFeatureReport);
   document.getElementById('recvFeatureBtn')!.addEventListener('click', receiveFeatureReport);
   document.getElementById('outlineSelect')!.addEventListener('change', outlineJump);
+  document.getElementById('themeToggleBtn')!.addEventListener('click', toggleTheme);
+  applyTheme(getTheme());
 }
 
 async function connectDevice() {
