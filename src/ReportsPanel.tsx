@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { parseHexArray } from './utils';
 import type { InputReportEntry } from './useWebHID';
 
@@ -10,9 +10,48 @@ interface Props {
   receiveFeatureReport: (reportId: number) => Promise<string | null>;
 }
 
+function useDragResize(initialSizes: number[]) {
+  const [sizes, setSizes] = useState(initialSizes);
+  const dragging = useRef<{ index: number; startY: number; startSizes: number[] } | null>(null);
+
+  const onMouseDown = useCallback((index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startSizes = [...sizes];
+    dragging.current = { index, startY, startSizes };
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!dragging.current) return;
+      const delta = ev.clientY - dragging.current.startY;
+      const container = (e.target as HTMLElement).parentElement!;
+      const totalHeight = container.getBoundingClientRect().height;
+      const deltaPercent = (delta / totalHeight) * 100;
+
+      const newSizes = [...dragging.current.startSizes];
+      const minSize = 5;
+      newSizes[dragging.current.index] = Math.max(minSize, newSizes[dragging.current.index] + deltaPercent);
+      newSizes[dragging.current.index + 1] = Math.max(minSize, newSizes[dragging.current.index + 1] - deltaPercent);
+      setSizes(newSizes);
+    };
+
+    const onMouseUp = () => {
+      dragging.current = null;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [sizes]);
+
+  return { sizes, onMouseDown };
+}
+
 export default function ReportsPanel({ inputReports, clearReports, sendOutputReport, sendFeatureReport, receiveFeatureReport }: Props) {
   const [featureValue, setFeatureValue] = useState('');
+  const [featureResponse, setFeatureResponse] = useState('');
   const outputRef = useRef<HTMLInputElement>(null);
+  const { sizes, onMouseDown } = useDragResize([60, 15, 25]);
 
   const handleSendOutput = () => {
     const data = parseHexArray(outputRef.current?.value || '');
@@ -35,12 +74,12 @@ export default function ReportsPanel({ inputReports, clearReports, sendOutputRep
     if (!data) return;
     const reportId = data.getUint8(0);
     const result = await receiveFeatureReport(reportId);
-    if (result) setFeatureValue(result);
+    if (result) setFeatureResponse(result);
   };
 
   return (
     <div className="panel panel-right">
-      <div className="report-section input-reports">
+      <div className="report-section" style={{ flex: `${sizes[0]} 0 0` }}>
         <div className="panel-header">
           <span>Input Reports</span>
           <span style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>{inputReports.length}</span>
@@ -56,7 +95,9 @@ export default function ReportsPanel({ inputReports, clearReports, sendOutputRep
         </div>
       </div>
 
-      <div className="report-section output-reports">
+      <div className="resize-handle" onMouseDown={e => onMouseDown(0, e)} />
+
+      <div className="report-section" style={{ flex: `${sizes[1]} 0 0` }}>
         <div className="panel-header"><span>Output Report</span></div>
         <div className="report-send-area">
           <input ref={outputRef} type="text" placeholder="Report ID + Data (hex, e.g. 01 FF 00)" />
@@ -64,13 +105,21 @@ export default function ReportsPanel({ inputReports, clearReports, sendOutputRep
         </div>
       </div>
 
-      <div className="report-section feature-reports">
+      <div className="resize-handle" onMouseDown={e => onMouseDown(1, e)} />
+
+      <div className="report-section" style={{ flex: `${sizes[2]} 0 0` }}>
         <div className="panel-header"><span>Feature Report</span></div>
         <div className="report-send-area">
           <input value={featureValue} onChange={e => setFeatureValue(e.target.value)} type="text" placeholder="Report ID + Data (hex)" />
           <button onClick={handleSendFeature}>Send</button>
           <button onClick={handleRecvFeature}>Receive</button>
         </div>
+        {featureResponse && (
+          <div className="feature-response">
+            <span className="label">Response:</span>
+            <span className="data">{featureResponse}</span>
+          </div>
+        )}
       </div>
     </div>
   );

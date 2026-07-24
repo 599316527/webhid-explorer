@@ -200,11 +200,40 @@ select {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
-.report-section.input-reports { flex: 11; }
-.report-section.output-reports { flex: 0 0 auto; max-height: 120px; border-top: 1px solid var(--border); }
-.report-section.feature-reports { flex: 0 0 auto; max-height: 120px; border-top: 1px solid var(--border); }
+.resize-handle {
+  flex-shrink: 0;
+  height: 4px;
+  background: var(--border);
+  cursor: row-resize;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: var(--accent);
+}
+
+.feature-response {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.feature-response .label {
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
+.feature-response .data {
+  color: var(--success);
+}
 
 .report-content {
   flex: 1;
