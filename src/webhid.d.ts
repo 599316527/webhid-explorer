@@ -76,6 +76,8 @@ interface HID extends EventTarget {
   requestDevice(options: HIDDeviceRequestOptions): Promise<HIDDevice[]>;
   addEventListener(type: 'connect', listener: (event: HIDConnectionEvent) => void): void;
   addEventListener(type: 'disconnect', listener: (event: HIDConnectionEvent) => void): void;
+  removeEventListener(type: 'connect', listener: (event: HIDConnectionEvent) => void): void;
+  removeEventListener(type: 'disconnect', listener: (event: HIDConnectionEvent) => void): void;
 }
 
 interface Navigator {

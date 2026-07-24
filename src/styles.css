@@ -56,7 +56,7 @@ html, body {
   overflow: hidden;
 }
 
-#app {
+#root {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -79,7 +79,7 @@ html, body {
   margin-right: 8px;
 }
 
-.toolbar button {
+button {
   padding: 4px 12px;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -91,13 +91,13 @@ html, body {
   transition: all 0.15s;
 }
 
-.toolbar button:hover {
+button:hover {
   background: var(--accent);
   color: var(--btn-hover-text);
   border-color: var(--accent);
 }
 
-.toolbar select {
+select {
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -105,7 +105,13 @@ html, body {
   color: var(--text);
   font-size: 11px;
   font-family: inherit;
-  min-width: 150px;
+}
+
+.theme-toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .main-content {
@@ -148,33 +154,31 @@ html, body {
 
 .panel-header select {
   padding: 2px 6px;
-  border: 1px solid var(--border);
   border-radius: 3px;
-  background: var(--surface-alt);
-  color: var(--text);
-  font-size: 11px;
-  font-family: inherit;
   flex: 1;
   max-width: 300px;
 }
 
 .panel-header button {
   padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: var(--surface-alt);
-  color: var(--text);
-  cursor: pointer;
   font-size: 10px;
-  font-family: inherit;
-  transition: all 0.15s;
 }
 
-.panel-header button:hover {
-  background: var(--accent);
-  color: var(--btn-hover-text);
-  border-color: var(--accent);
+.device-meta {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface);
+  flex-shrink: 0;
 }
+
+.device-meta span {
+  margin-right: 12px;
+}
+
+.device-meta .label { color: var(--text-muted); }
+.device-meta .value { color: var(--text); }
 
 .descriptor-content {
   flex: 1;
@@ -182,27 +186,25 @@ html, body {
   padding: 8px;
 }
 
+.no-device {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Report sections */
 .report-section {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.report-section.input-reports {
-  flex: 11;
-}
-
-.report-section.output-reports {
-  flex: 0 0 auto;
-  max-height: 120px;
-  border-top: 1px solid var(--border);
-}
-
-.report-section.feature-reports {
-  flex: 0 0 auto;
-  max-height: 120px;
-  border-top: 1px solid var(--border);
-}
+.report-section.input-reports { flex: 11; }
+.report-section.output-reports { flex: 0 0 auto; max-height: 120px; border-top: 1px solid var(--border); }
+.report-section.feature-reports { flex: 0 0 auto; max-height: 120px; border-top: 1px solid var(--border); }
 
 .report-content {
   flex: 1;
@@ -251,22 +253,10 @@ html, body {
 
 .report-send-area button {
   padding: 3px 10px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  background: var(--surface-alt);
-  color: var(--text);
-  cursor: pointer;
   font-size: 10px;
-  font-family: inherit;
-  transition: all 0.15s;
 }
 
-.report-send-area button:hover {
-  background: var(--accent);
-  color: var(--btn-hover-text);
-}
-
-/* Descriptor tree styles */
+/* Descriptor tree */
 .desc-node {
   margin-left: 12px;
   position: relative;
@@ -282,9 +272,7 @@ html, body {
   background: var(--border);
 }
 
-.desc-collection {
-  margin: 2px 0;
-}
+.desc-collection { margin: 2px 0; }
 
 .desc-collection-header {
   display: flex;
@@ -292,7 +280,6 @@ html, body {
   gap: 4px;
   padding: 2px 4px;
   border-radius: 3px;
-  cursor: default;
   color: var(--accent);
   font-weight: 600;
   font-size: 11px;
@@ -320,14 +307,8 @@ html, body {
   line-height: 1.5;
 }
 
-.desc-item-usage {
-  color: var(--tag-text);
-}
-
-.desc-item-bits {
-  color: var(--text-muted);
-  font-size: 10px;
-}
+.desc-item-usage { color: var(--tag-text); }
+.desc-item-bits { color: var(--text-muted); font-size: 10px; }
 
 .desc-item-flags {
   display: inline-flex;
@@ -343,81 +324,31 @@ html, body {
   font-size: 9px;
 }
 
-.desc-item-bounds {
-  color: var(--text-muted);
-  font-size: 10px;
-}
+.desc-item-bounds { color: var(--text-muted); font-size: 10px; }
 
-.link-anchor {
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-}
-
-.link-anchor:hover {
-  color: var(--accent-hover);
-  text-decoration-style: solid;
-}
-
-.desc-report-id-ref {
+.link-ref {
   color: var(--accent);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-style: dotted;
 }
 
-.desc-report-id-ref:hover {
+.link-ref:hover {
   color: var(--accent-hover);
   text-decoration-style: solid;
 }
 
-.no-device {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+.link-back {
+  font-size: 10px;
+  font-weight: normal;
   color: var(--text-muted);
-  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-hover);
-}
-
-.device-meta {
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text-muted);
-  background: var(--surface);
-  flex-shrink: 0;
-}
-
-.device-meta span {
-  margin-right: 12px;
-}
-
-.device-meta .label {
-  color: var(--text-muted);
-}
-
-.device-meta .value {
-  color: var(--text);
+.link-back:hover {
+  color: var(--accent-hover);
 }
 
 .highlight-flash {
@@ -429,28 +360,7 @@ html, body {
   100% { background-color: transparent; }
 }
 
-.theme-toggle {
-  margin-left: auto;
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface-alt);
-  color: var(--text);
-  cursor: pointer;
-  font-size: 11px;
-  font-family: inherit;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.theme-toggle:hover {
-  background: var(--accent);
-  color: var(--btn-hover-text);
-  border-color: var(--accent);
-}
-
-.theme-toggle .icon {
-  font-size: 13px;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
